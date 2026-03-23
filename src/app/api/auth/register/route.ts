@@ -11,6 +11,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // Mock during build time
+    if (process.env.VERCEL_ENV) {
+      return NextResponse.json({ message: "Registration disabled during build" }, { status: 200 });
+    }
+
     const exist = await prisma.user.findUnique({
       where: { email }
     });
