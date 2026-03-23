@@ -1,0 +1,4 @@
+{
+  "code": "const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`; const adminKey = \"ADMIN_SECRET_123\"; exec(command); Math.random();",
+  "language": "javascript"
+}

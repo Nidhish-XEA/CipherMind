@@ -226,24 +226,33 @@ function getMockAnalysis(code: string, language: string) {
 
 export async function POST(req: Request) {
   try {
+    console.log('=== ANALYSIS REQUEST STARTED ===');
+    
     // Skip authentication for demo - allow direct access
     const userId = 'demo-user';
 
     const { code, language } = await req.json();
+    console.log('Received code:', code.substring(0, 100) + '...');
+    console.log('Language:', language);
+    
     if (!code || !language) {
       return NextResponse.json({ error: 'Missing code or language' }, { status: 400 });
     }
 
     // Always use mock analysis for demo
+    console.log('Calling getMockAnalysis...');
     let analysisResult = getMockAnalysis(code, language);
-    console.log('Using mock analysis for demo - found', analysisResult.summary.total, 'vulnerabilities');
+    console.log('Mock analysis result:', JSON.stringify(analysisResult, null, 2));
 
-    return NextResponse.json({
+    const response = {
       success: true,
       analysis: analysisResult,
       memoryContext: 'Demo mode - no memory system',
       timestamp: new Date().toISOString()
-    });
+    };
+    
+    console.log('Sending response:', JSON.stringify(response, null, 2));
+    return NextResponse.json(response);
 
   } catch (error: any) {
     console.error('Analysis error:', error);
