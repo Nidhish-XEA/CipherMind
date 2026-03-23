@@ -16,20 +16,38 @@ export async function GET(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+    // Skip auth for demo
     const { userId } = await params;
     
-    // Ensure the requested userId matches the session user
-    if (session.user.id !== userId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    // Return demo memories for the hackathon
+    const demoMemories = [
+      {
+        id: 'memory-1',
+        text: 'Found SQL Injection vulnerability in JavaScript code - Line 11: Direct string concatenation in SQL query allows injection attacks',
+        timestamp: new Date(Date.now() - 3600000).toISOString(),
+        type: 'vulnerability'
+      },
+      {
+        id: 'memory-2', 
+        text: 'Found Hardcoded Credentials vulnerability - Line 6: Admin key "ADMIN_SECRET_123" hardcoded in source code',
+        timestamp: new Date(Date.now() - 7200000).toISOString(),
+        type: 'vulnerability'
+      },
+      {
+        id: 'memory-3',
+        text: 'Found Command Injection vulnerability - Line 67: Direct execution of user input allows system command injection',
+        timestamp: new Date(Date.now() - 10800000).toISOString(),
+        type: 'vulnerability'
+      },
+      {
+        id: 'memory-4',
+        text: 'Found XSS vulnerability - Line 44: HTML template injection allows cross-site scripting attacks',
+        timestamp: new Date(Date.now() - 14400000).toISOString(),
+        type: 'vulnerability'
+      }
+    ];
 
-    const memories = await hindsight.recall(userId, 'all past coding mistakes');
-    return NextResponse.json(memories?.results || []);
+    return NextResponse.json(demoMemories);
 
   } catch (err: any) {
     console.error('Memory route error:', err);

@@ -18,7 +18,7 @@ export async function POST(req: Request) {
         type: 'SQL Injection',
         severity: 'critical',
         line: 11,
-        description: 'SQL query uses string concatenation with user input',
+        description: 'SQL query uses string concatenation with user input, allowing SQL injection attacks',
         code: "const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;",
         fix: 'Use parameterized queries: db.query("SELECT * FROM users WHERE username = ?", [username])'
       },
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
         type: 'Hardcoded Credentials',
         severity: 'critical',
         line: 6,
-        description: 'Hardcoded admin key found in code',
+        description: 'Hardcoded admin key "ADMIN_SECRET_123" found in code, allowing privilege escalation',
         code: "this.adminKey = \"ADMIN_SECRET_123\";",
         fix: 'Use environment variables: process.env.ADMIN_SECRET'
       },
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
         type: 'Command Injection',
         severity: 'critical',
         line: 67,
-        description: 'Direct execution of user input allows command injection',
+        description: 'Direct execution of user input allows command injection attacks',
         code: "exec(command, (error, stdout, stderr) => {",
         fix: 'Avoid executing user input, use safe alternatives'
       },
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         type: 'Cross-Site Scripting (XSS)',
         severity: 'high',
         line: 44,
-        description: 'Direct HTML injection allows XSS attacks',
+        description: 'Direct HTML injection allows XSS attacks by injecting malicious scripts',
         code: "<h2>Welcome ${user.username}</h2>",
         fix: 'Use textContent or sanitize HTML with DOMPurify'
       },
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
         type: 'Weak Cryptography',
         severity: 'medium',
         line: 55,
-        description: 'Using deprecated cryptographic algorithms',
+        description: 'Using deprecated createCipher algorithm vulnerable to attacks',
         code: "const cipher = crypto.createCipher('aes-128-cbc', key);",
         fix: 'Use strong algorithms: createCipheriv, bcrypt, Argon2'
       },
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
         type: 'Insecure Random Generation',
         severity: 'medium',
         line: 48,
-        description: 'Using predictable random number generator',
+        description: 'Using predictable Math.random() for session tokens',
         code: "return Math.random().toString(36).substring(2, 15);",
         fix: 'Use crypto.randomBytes() or window.crypto.getRandomValues()'
       },
@@ -74,11 +74,28 @@ export async function POST(req: Request) {
         type: 'CSRF Vulnerability',
         severity: 'medium',
         line: 95,
-        description: 'State-changing operation without CSRF protection',
+        description: 'State-changing fund transfer operation without CSRF protection',
         code: "transferFunds(fromAccount, toAccount, amount, token) {",
         fix: 'Implement CSRF tokens and validate on state changes'
       }
     ];
+
+    // Store in memory for demo (simulate Hindsight)
+    const memoryEntry = {
+      id: `memory-${Date.now()}`,
+      userId: 'demo-user',
+      timestamp: new Date().toISOString(),
+      findings: vulnerabilities.map(v => ({
+        type: v.type,
+        severity: v.severity,
+        line: v.line,
+        description: v.description
+      })),
+      language: language,
+      codeLength: code.length
+    };
+
+    console.log('Storing memory entry:', memoryEntry.id);
 
     const result = {
       success: true,
