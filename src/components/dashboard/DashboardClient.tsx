@@ -120,10 +120,13 @@ export default function DashboardClient({ user }: { user: any }) {
     });
   };
 
+  // Force cache busting - v2.0
   const handleAnalyze = async () => {
     setAnalyzing(true);
     setFindings(null);
     setAnalysisResult(null);
+    setExpandedCards(new Set());
+    setFixedCards(new Set());
     setScanningLine(0);
     
     // Simulate scanning animation
@@ -139,7 +142,7 @@ export default function DashboardClient({ user }: { user: any }) {
     }, 50);
     
     try {
-      const res = await fetch('/api/security-scan', {
+      const res = await fetch(`/api/security-scan?t=${Date.now()}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, language })
