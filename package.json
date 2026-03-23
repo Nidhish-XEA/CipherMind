@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:quick": "next build --no-lint"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
