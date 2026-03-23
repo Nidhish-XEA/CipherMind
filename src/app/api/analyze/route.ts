@@ -226,104 +226,22 @@ function getMockAnalysis(code: string, language: string) {
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    const userId = session.user.id;
+    // Skip authentication for demo - allow direct access
+    const userId = 'demo-user';
 
     const { code, language } = await req.json();
     if (!code || !language) {
       return NextResponse.json({ error: 'Missing code or language' }, { status: 400 });
     }
 
-    // Query Hindsight for past mistakes
-    let memoryContext = 'No past mistakes recorded yet.';
-    try {
-      const memories = await hindsight.recall(userId, `past coding mistakes in ${language}`);
-      memoryContext = memories?.results?.map((m: any) => m.text).join('\n') || 'No past mistakes recorded yet.';
-    } catch (e) {
-      console.error('Hindsight recall error (non-fatal):', e);
-    }
-
     // Always use mock analysis for demo
     let analysisResult = getMockAnalysis(code, language);
     console.log('Using mock analysis for demo - found', analysisResult.summary.total, 'vulnerabilities');
-    
-    // Uncomment below to use real Groq analysis when API keys are added
-    /*
-    if (process.env.GROQ_API_KEY && process.env.GROQ_API_KEY !== 'mock-key') {
-      // Real Groq analysis
-      const systemPrompt = `You are CipherMind, a strict and expert security-focused code reviewer. You MUST analyze the submitted code thoroughly and find ALL issues. Be aggressive — never say code is perfect unless it truly is. 
-
-ALWAYS look for:
-- SQL Injection, XSS, CSRF vulnerabilities
-- Hardcoded credentials, API keys, passwords
-- Insecure functions (eval, exec, pickle, etc.)
-- Missing input validation or sanitization
-- Weak or broken cryptography
-- Authentication/authorization bypass
-- Path traversal, file inclusion
-- Information disclosure
-- Insecure random generation
-- Command injection
-
-Return JSON format:
-{
-  "summary": {
-    "total": number,
-    "critical": number,
-    "high": number, 
-    "medium": number,
-    "low": number,
-    "score": number
-  },
-  "vulnerabilities": [
-    {
-      "type": "vulnerability type",
-      "severity": "critical|high|medium|low",
-      "line": line_number,
-      "description": "detailed description",
-      "code": "exact vulnerable code",
-      "fix": "specific fix recommendation"
-    }
-  ],
-  "recommendations": ["list of security recommendations"]
-}
-
-User's past mistakes context: ${memoryContext}`;
-
-      const completion = await groq.chat.completions.create({
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Analyze this ${language} code for security vulnerabilities:\n\n${code}` }
-        ],
-        model: 'mixtral-8x7b-32768',
-        temperature: 0.1,
-        response_format: { type: 'json_object' }
-      });
-
-      analysisResult = JSON.parse(completion.choices[0].message.content || '{}');
-    }
-    */
-
-    // Store findings in Hindsight
-    try {
-      if (analysisResult.vulnerabilities && analysisResult.vulnerabilities.length > 0) {
-        const findingsText = analysisResult.vulnerabilities.map((v: any) => 
-          `${v.severity} ${v.type}: ${v.description} at line ${v.line}`
-        ).join('\n');
-        
-        await hindsight.retain(userId, `Found ${analysisResult.vulnerabilities.length} vulnerabilities in ${language}: ${findingsText}`);
-      }
-    } catch (e) {
-      console.error('Hindsight retain error (non-fatal):', e);
-    }
 
     return NextResponse.json({
       success: true,
       analysis: analysisResult,
-      memoryContext: memoryContext.substring(0, 200) + '...',
+      memoryContext: 'Demo mode - no memory system',
       timestamp: new Date().toISOString()
     });
 
