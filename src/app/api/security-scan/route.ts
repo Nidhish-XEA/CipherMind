@@ -105,6 +105,30 @@ export async function POST(req: Request) {
 
     console.log('Storing memory entry:', memoryEntry.id);
 
+    // Store in memory system
+    try {
+      await fetch(`http://localhost:3000/api/memory/demo-user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: `Security Analysis Complete - Found ${vulnerabilities.length} vulnerabilities in ${language} code`,
+          type: 'analysis',
+          findings: vulnerabilities.map(v => ({
+            type: v.type,
+            severity: v.severity,
+            line: v.line,
+            description: v.description
+          })),
+          language: language,
+          codeLength: code.length,
+          score: 25
+        })
+      });
+      console.log('Memory stored successfully');
+    } catch (memoryError) {
+      console.log('Memory storage failed:', memoryError);
+    }
+
     const result = {
       success: true,
       findings: vulnerabilities,

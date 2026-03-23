@@ -1,26 +1,20 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { HindsightClient } from '@vectorize-io/hindsight-client';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
-const hindsight = new HindsightClient({
-  baseUrl: process.env.HINDSIGHT_INSTANCE_URL || 'https://mock.vercel.com',
-  apiKey: process.env.HINDSIGHT_API_KEY || 'mock-key'
-});
+// Simple in-memory storage for demo
+let memoryStorage: any[] = [];
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    // Skip auth for demo
     const { userId } = await params;
     
-    // Return demo memories for the hackathon
-    const demoMemories = [
+    // Return stored memories or default demo data
+    const memories = memoryStorage.length > 0 ? memoryStorage : [
       {
         id: 'memory-1',
         text: 'Found SQL Injection vulnerability in JavaScript code - Line 11: Direct string concatenation in SQL query allows injection attacks',
@@ -47,10 +41,43 @@ export async function GET(
       }
     ];
 
-    return NextResponse.json(demoMemories);
+    return NextResponse.json(memories);
 
   } catch (err: any) {
     console.error('Memory route error:', err);
+    return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ userId: string }> }
+) {
+  try {
+    const { userId } = await params;
+    const memoryData = await req.json();
+    
+    // Store the memory
+    const newMemory = {
+      id: `memory-${Date.now()}`,
+      userId: userId,
+      timestamp: new Date().toISOString(),
+      ...memoryData
+    };
+    
+    memoryStorage.push(newMemory);
+    
+    // Keep only last 10 memories
+    if (memoryStorage.length > 10) {
+      memoryStorage = memoryStorage.slice(-10);
+    }
+    
+    console.log('Stored new memory:', newMemory.id);
+    
+    return NextResponse.json({ success: true, memory: newMemory });
+
+  } catch (err: any) {
+    console.error('Memory POST error:', err);
     return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
   }
 }
