@@ -249,7 +249,7 @@ export default function DashboardClient({ user }: { user: any }) {
     );
   };
 
-  const getSeverityCounts = () => {
+  const getSeverityCounts = (): { critical: number; high: number; medium: number; low: number } => {
     if (!findings) return { critical: 0, high: 0, medium: 0, low: 0 };
     return findings.reduce((acc, f) => {
       const severity = f.severity?.toLowerCase() || 'low';
