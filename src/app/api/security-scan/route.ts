@@ -2,13 +2,15 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
+// Version 2.0 - Updated for Vercel deployment
 export async function POST(req: Request) {
   try {
     const { code, language } = await req.json();
     
-    console.log('=== SECURITY SCAN START ===');
+    console.log('=== SECURITY SCAN V2.0 START ===');
     console.log('Code length:', code.length);
     console.log('Language:', language);
+    console.log('Timestamp:', new Date().toISOString());
     
     // Always return vulnerabilities for demo
     const vulnerabilities = [
