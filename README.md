@@ -14,13 +14,11 @@ CipherMind analyzes your code, **remembers your mistakes**, and builds a persona
 
 </div>
 
-</div>
-
 ---
 
 ## 🚨 The Problem
 
-Every coding tool forgets you the moment you close the tab.
+Every coding tool forgets you the moment you close the tab. 
 
 You make the same SQL injection mistake in January. Fix it. Move on. Then make it again in March — because nothing remembered it was *your* recurring blind spot.
 
@@ -61,20 +59,11 @@ Every mistake you make is stored. Every session, the AI recalls your history and
 │                                                         │
 └─────────────────────────────────────────────────────────┘
 ```
->>>>>>> bfef26f07db09c9faa71163b23a27bb254ec1fed
 
 ---
 
 ## Features
 
-<<<<<<< HEAD
-- **Real-time Code Analysis** — Instant feedback on bugs, anti-patterns, and security vulnerabilities via Groq LPU.
-- **Persistent Memory** — Hindsight vector DB recalls your historical coding patterns across every session.
-- **Personalized Feedback** — Advice strictly tailored to your past mistakes, not generic tips.
-- **Progress Tracking** — Visual analytics to watch your mistake rate drop over time.
-- **Secure Auth** — Full authentication with NextAuth.js (credentials + OAuth).
-- **Premium UI** — Cyberpunk aesthetic with matrix rain, glassmorphism, and micro-animations.
-=======
 | Feature | Description |
 |---|---|
 | 🕵️ **Real-time Code Analysis** | Instant feedback on bugs, anti-patterns, and vulnerabilities via Groq LPU |
@@ -97,7 +86,7 @@ This is the core of CipherMind. Not just analysis — **adaptive memory**.
 // After every analysis — store the mistake permanently
 await client.retain(
   userId,
-  `User made a ${severity} mistake in ${language}: ${issueType}.
+  `User made a ${severity} mistake in ${language}: ${issueType}. 
    Code: ${codeSnippet}. Fix: ${suggestedFix}`
 );
 
@@ -113,44 +102,20 @@ const memoryContext = memories.results
   .join('\n');
 ```
 
-**What gets stored:**
-- Every bug, anti-pattern, and vulnerability detected
-- Programming language and severity
-- The suggested fix that was provided
-- Timestamp and session context
-
-**What gets recalled:**
-- Your full mistake history for the current language
-- Recurring patterns across all sessions
-- Context injected directly into the AI prompt
-
-**The result:** A feedback loop where CipherMind continuously learns → gives better guidance → learns again.
->>>>>>> bfef26f07db09c9faa71163b23a27bb254ec1fed
-
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-<<<<<<< HEAD
-| Framework | Next.js 15 (App Router) |
-| Database | Prisma ORM + SQLite |
-| AI Inference | Groq SDK (Qwen-2.5-Coder-32b) |
-| Memory | Hindsight Client by Vectorize |
-| Styling | Tailwind CSS + Framer Motion |
-| Auth | NextAuth.js |
-=======
 | **Framework** | Next.js 15 (App Router) |
 | **AI Inference** | Groq SDK — Qwen-2.5-Coder-32b |
 | **Memory Layer** | [Hindsight by Vectorize](https://hindsight.vectorize.io/) |
-| **Database** | Prisma 7 + SQLite |
+| **Database** | Prisma 5 + SQLite |
 | **Styling** | Tailwind CSS + Framer Motion |
 | **Code Editor** | Monaco Editor (@monaco-editor/react) |
 | **Charts** | Recharts |
 | **Auth** | NextAuth.js |
-| **Icons** | Lucide React |
->>>>>>> bfef26f07db09c9faa71163b23a27bb254ec1fed
 
 ---
 
@@ -163,14 +128,8 @@ cd CipherMind
 npm install --legacy-peer-deps
 ```
 
-<<<<<<< HEAD
-**2. Set Environment Variables**
-
-Create a `.env` file in the root:
-=======
-### 2. Configure Environment
+**2. Configure Environment**
 Create a `.env.local` file in the root:
->>>>>>> bfef26f07db09c9faa71163b23a27bb254ec1fed
 ```env
 DATABASE_URL="file:./dev.db"
 NEXTAUTH_SECRET="your_secret_here"
@@ -178,58 +137,19 @@ NEXTAUTH_URL="http://localhost:3000"
 
 GROQ_API_KEY="your_groq_api_key"
 HINDSIGHT_API_KEY="your_hindsight_api_key"
-<<<<<<< HEAD
-HINDSIGHT_INSTANCE_URL="your_hindsight_instance_url"
-```
-
-**3. Sync the Database**
-=======
 HINDSIGHT_INSTANCE_URL="https://api.hindsight.vectorize.io"
 ```
 
-Get your keys:
-- 🤖 Groq API Key → [groq.com](https://groq.com/) (free tier available)
-- 🧠 Hindsight API Key → [ui.hindsight.vectorize.io](https://ui.hindsight.vectorize.io/) (use code `MEMHACK315` for $50 free credits)
-
-### 3. Sync Database
->>>>>>> bfef26f07db09c9faa71163b23a27bb254ec1fed
+**3. Sync Database**
 ```bash
 npx prisma db push
 npx prisma generate
 ```
 
-<<<<<<< HEAD
-**4. Run the Dev Server**
-=======
-### 4. Launch
->>>>>>> bfef26f07db09c9faa71163b23a27bb254ec1fed
+**4. Launch**
 ```bash
 npm run dev
 ```
-
-<<<<<<< HEAD
-Open [http://localhost:3000](http://localhost:3000) to start.
-
----
-
-## How It Works
-
-```
-Submit Code  →  Recall Memories  →  Groq Inference  →  Store New Mistakes
-```
-
-1. **Submit** — Code is sent to the `/api/analyze` endpoint.
-2. **Recall** — Past user mistakes are fetched from Hindsight for context.
-3. **Infer** — Groq generates feedback personalized to your history.
-4. **Retain** — New bugs found are stored back into Hindsight as new memories.
-
----
-
-<div align="center">
-
-Built with ⚡ for **HackWithBengaluru 2.0**
-=======
-Open [http://localhost:3000](http://localhost:3000) 🚀
 
 ---
 
@@ -264,7 +184,6 @@ CipherMind/
 - **Landing Page** — Animated Matrix Rain + Typewriter hero text
 - **Dashboard** — Monaco Editor + real-time AI results panel + memory sidebar
 - **Memory Page** — Semantic search over your full coding history + heatmaps
-- Every hover has a micro-interaction. Every mistake has a memory.
 
 ---
 
@@ -282,20 +201,10 @@ Theme: *AI Agents That Learn Using Hindsight*
 
 ---
 
-## 🔗 Resources
-
-- [Hindsight GitHub](https://github.com/vectorize-io/hindsight)
-- [Hindsight Documentation](https://hindsight.vectorize.io/)
-- [Agent Memory — Vectorize](https://vectorize.io/features/agent-memory)
-- [Groq API](https://groq.com/)
-
----
-
 <div align="center">
 
 Built with ⚡ by the CipherMind Team
 
 *Every hover has a micro-interaction. Every mistake has a memory.*
->>>>>>> bfef26f07db09c9faa71163b23a27bb254ec1fed
 
 </div>
