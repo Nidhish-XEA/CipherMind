@@ -64,6 +64,7 @@ export async function POST(req: Request) {
 
     const result = {
       success: true,
+      findings: vulnerabilities,
       analysis: {
         summary: {
           total: vulnerabilities.length,
@@ -76,6 +77,7 @@ export async function POST(req: Request) {
         vulnerabilities,
         recommendations: ['Fix all critical vulnerabilities', 'Use secure coding practices']
       },
+      score: Math.max(0, 100 - vulnerabilities.length * 10),
       timestamp: new Date().toISOString()
     };
 
