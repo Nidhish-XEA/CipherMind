@@ -29,8 +29,11 @@ export async function POST(request: Request) {
       }
     });
 
-    return NextResponse.json(user);
+    const { password: _, ...sanitizedUser } = user;
+
+    return NextResponse.json(sanitizedUser);
   } catch (error: any) {
+    console.error("Registration error:", error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }

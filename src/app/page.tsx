@@ -2,10 +2,10 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, BrainCircuit, ShieldAlert, Zap, Repeat, Target, Lock } from 'lucide-react';
+import { ArrowRight, BrainCircuit, ShieldAlert, Zap, Repeat, Target, Lock, Code, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MatrixRain from '@/components/landing/MatrixRain';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 const Typewriter = ({ strings }: { strings: string[] }) => {
   const [index, setIndex] = useState(0);
@@ -32,12 +32,120 @@ const Typewriter = ({ strings }: { strings: string[] }) => {
   }, [text, isDeleting, index, strings]);
 
   return <span className="text-primary font-mono border-r-2 border-primary pr-1 animate-pulse">{text}</span>;
-}
+};
+
+// Neural Network Background Component
+const NeuralNetwork = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    interface Node {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radius: number;
+    }
+
+    const nodes: Node[] = [];
+    const nodeCount = 50;
+    const connectionDistance = 150;
+
+    // Initialize nodes
+    for (let i = 0; i < nodeCount; i++) {
+      nodes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        radius: Math.random() * 2 + 1
+      });
+    }
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Update and draw nodes
+      nodes.forEach((node, i) => {
+        node.x += node.vx;
+        node.y += node.vy;
+
+        // Bounce off walls
+        if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+        if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+
+        // Draw connections
+        nodes.forEach((otherNode, j) => {
+          if (i === j) return;
+          const distance = Math.sqrt(
+            Math.pow(node.x - otherNode.x, 2) + Math.pow(node.y - otherNode.y, 2)
+          );
+
+          if (distance < connectionDistance) {
+            ctx.beginPath();
+            ctx.moveTo(node.x, node.y);
+            ctx.lineTo(otherNode.x, otherNode.y);
+            ctx.strokeStyle = `rgba(0, 212, 255, ${0.1 * (1 - distance / connectionDistance)})`;
+            ctx.stroke();
+          }
+        });
+
+        // Draw node
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 212, 255, 0.6)';
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 z-0"
+      style={{ opacity: 0.3 }}
+    />
+  );
+};
 
 export default function Home() {
+  const [demoStep, setDemoStep] = useState(0);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const runDemo = () => {
+    setIsAnalyzing(true);
+    setDemoStep(1);
+    setTimeout(() => {
+      setDemoStep(2);
+      setIsAnalyzing(false);
+    }, 3000);
+  };
+
   return (
     <div className="relative min-h-screen">
       <MatrixRain />
+      <NeuralNetwork />
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 flex flex-col items-center justify-center text-center px-4 overflow-hidden">
@@ -56,7 +164,7 @@ export default function Home() {
           </h1>
           
           <div className="h-12 md:h-16 text-xl md:text-3xl font-medium text-gray-300 mb-8 max-w-2xl">
-            <Typewriter strings={["Remembers your mistakes.", "Learns your patterns.", "Makes you better."]} />
+            <Typewriter strings={["Remembers your mistakes.", "Learns your patterns.", "Makes you unstoppable."]} />
           </div>
 
           <div className="flex flex-col sm:flex-row gap-6 mb-16 relative z-10 w-full sm:w-auto px-4">
@@ -171,6 +279,158 @@ export default function Home() {
               <h4 className="text-xl font-bold text-success mb-4 font-mono">Memory Learns</h4>
               <p className="text-gray-400 text-sm">New mistakes are instantly stored. Your mentor adapts definitively to your weaknesses.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Live Demo Section */}
+      <section className="py-24 relative">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-mono font-bold mb-4 heading-glow">Live Demo</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg">See CipherMind in action - watch it detect vulnerabilities in real-time</p>
+          </div>
+
+          <div className="glass-card rounded-2xl p-8 border border-white/10">
+            <div className="mb-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                </div>
+                <span className="text-sm font-mono text-gray-400">demo.js</span>
+              </div>
+              
+              <div className="bg-black/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+                <pre className="text-green-400">
+{`function authenticateUser(username, password) {
+  const query = \`SELECT * FROM users WHERE username = '\${username}' AND password = '\${password}'\`;
+  return db.query(query);
+}`}
+                </pre>
+              </div>
+            </div>
+
+            <div className="flex justify-center mb-6">
+              <Button 
+                onClick={runDemo}
+                disabled={isAnalyzing}
+                className="bg-primary hover:bg-primary/80 text-black font-bold"
+              >
+                {isAnalyzing ? (
+                  <><motion.div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" /> Analyzing...</>
+                ) : (
+                  <>Run Analysis <Zap className="ml-2 w-4 h-4" /></>
+                )}
+              </Button>
+            </div>
+
+            {/* Demo Results */}
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: demoStep > 0 ? 1 : 0, height: demoStep > 0 ? 'auto' : 0 }}
+              className="overflow-hidden"
+            >
+              <div className="border-t border-white/10 pt-6">
+                <h3 className="text-lg font-bold font-mono text-white mb-4 flex items-center gap-2">
+                  <BrainCircuit className="w-5 h-5 text-primary" /> Analysis Results
+                </h3>
+                
+                <div className="space-y-4">
+                  <motion.div 
+                    initial={{ x: -50, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="bg-red-500/10 border border-red-500/30 rounded-lg p-4"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertTriangle className="w-5 h-5 text-red-400" />
+                      <span className="font-bold text-red-400 font-mono">SQL Injection</span>
+                      <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded">Critical</span>
+                    </div>
+                    <p className="text-sm text-gray-300 mb-2">Direct string concatenation in SQL query allows malicious input injection</p>
+                    <div className="bg-black/50 rounded p-2">
+                      <code className="text-xs text-red-400">Vulnerable: `SELECT * FROM users WHERE username = '${` + "username" + `}'`</code>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div 
+                    initial={{ x: -50, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="bg-green-500/10 border border-green-500/30 rounded-lg p-4"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle className="w-5 h-5 text-green-400" />
+                      <span className="font-bold text-green-400 font-mono">Suggested Fix</span>
+                    </div>
+                    <div className="bg-black/50 rounded p-2">
+                      <code className="text-xs text-green-400">Use parameterized queries or prepared statements</code>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-24 relative bg-[#0d0d14]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-mono font-bold mb-4 heading-glow">What Developers Say</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg">Join thousands of developers who've leveled up their security skills</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Sarah Chen",
+                role: "Full Stack Developer",
+                content: "CipherMind caught 3 SQL injection vulnerabilities I missed in code review. The memory feature is incredible - it remembers my patterns!",
+                rating: 5
+              },
+              {
+                name: "Marcus Rodriguez",
+                role: "Security Engineer",
+                content: "As someone who mentors junior developers, this tool is a game-changer. The personalized feedback based on past mistakes is brilliant.",
+                rating: 5
+              },
+              {
+                name: "Emily Watson",
+                role: "Frontend Developer",
+                content: "I've reduced my security bugs by 80% since using CipherMind. The real-time analysis during development is invaluable.",
+                rating: 5
+              }
+            ].map((testimonial, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="glass-card p-6 rounded-2xl border border-white/10 hover:border-primary/30 transition-all"
+              >
+                <div className="flex items-center gap-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, j) => (
+                    <span key={j} className="text-yellow-400">★</span>
+                  ))}
+                </div>
+                <p className="text-gray-300 mb-4 italic">"{testimonial.content}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                    <span className="text-black font-bold text-sm">
+                      {testimonial.name.split(' ').map(n => n[0]).join('')}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="font-mono font-semibold text-white">{testimonial.name}</div>
+                    <div className="text-xs text-gray-400">{testimonial.role}</div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>

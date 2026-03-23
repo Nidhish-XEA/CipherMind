@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BrainCircuit } from 'lucide-react';
+import { BrainCircuit, TrendingUp } from 'lucide-react';
 import { Button } from './ui/button';
 
 export function Navbar() {
@@ -19,6 +19,9 @@ export function Navbar() {
             <div className="ml-10 flex items-baseline space-x-8">
               <Link href="#features" className="text-gray-300 hover:text-primary text-sm font-medium transition-colors">Features</Link>
               <Link href="#how-it-works" className="text-gray-300 hover:text-primary text-sm font-medium transition-colors">How it works</Link>
+              <Link href="/progress" className="text-gray-300 hover:text-primary text-sm font-medium transition-colors flex items-center gap-1">
+                <TrendingUp className="w-4 h-4" /> Progress
+              </Link>
             </div>
           </div>
           <div className="flex items-center gap-4">

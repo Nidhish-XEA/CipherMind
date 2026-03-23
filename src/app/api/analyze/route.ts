@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import Groq from 'groq-sdk';
-import { hindsightClient } from '@/lib/hindsight';
+import { HindsightClient } from '@vectorize-io/hindsight-client';
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const hindsight = new HindsightClient({
+  baseUrl: process.env.HINDSIGHT_INSTANCE_URL!,
+  apiKey: process.env.HINDSIGHT_API_KEY!
+});
 
 export async function POST(req: Request) {
   try {
@@ -19,71 +23,92 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing code or language' }, { status: 400 });
     }
 
-    // 1. Retrieve past memories from Hindsight using positional args
-    let memoryContext = 'No past mistakes found.';
+    // Query Hindsight for past mistakes
+    let memoryContext = 'No past mistakes recorded yet.';
     try {
-      const recallResponse = await hindsightClient.recall(userId, `past mistakes in ${language}`);
-      const results = recallResponse?.results;
-      if (Array.isArray(results) && results.length > 0) {
-        memoryContext = results.map((m: any) => m.content).join('\n');
-      }
+      const memories = await hindsight.recall(userId, `past coding mistakes in ${language}`);
+      memoryContext = memories?.results?.map((m: any) => m.text).join('\n') || 'No past mistakes recorded yet.';
     } catch (e) {
       console.error('Hindsight recall error (non-fatal):', e);
     }
 
-    // 2. Call Groq with memory context injected
-    const prompt = `You are CipherMind, an expert coding mentor. Analyze the following ${language} code for bugs, anti-patterns, and security vulnerabilities.
+    // Send to Groq with the exact system prompt
+    const systemPrompt = `You are CipherMind, a strict and expert security-focused code reviewer. You MUST analyze the submitted code thoroughly and find ALL issues. Be aggressive — never say code is perfect unless it truly is. 
 
-Here are the user's PAST MISTAKES from memory — reference them if the user is repeating a pattern:
+ALWAYS look for:
+- SQL Injection, XSS, CSRF vulnerabilities
+- Hardcoded credentials, API keys, passwords
+- Insecure functions (eval, exec, pickle, etc.)
+- Missing input validation or sanitization
+- Weak or broken cryptography
+- Authentication/authorization bypass
+- Insecure dependencies
+- Race conditions and memory leaks
+- Sensitive data exposure
+- Injection flaws of any kind
+
+The user's past mistake history from memory:
 ${memoryContext}
 
-Code to analyze:
-\`\`\`${language}
-${code}
-\`\`\`
+Use their history to provide more personalized feedback — reference their patterns if relevant.
 
-Return EXACTLY a JSON array of findings with no markdown or prose outside the JSON. If no issues are found, return [].
-Each finding must have this shape:
+You MUST respond with ONLY a raw JSON object (no markdown, no backticks, no explanation outside JSON):
 {
-  "issue_type": string,
-  "severity": "Critical" | "High" | "Medium" | "Low",
-  "line_number": number | string,
-  "explanation": string,
-  "suggested_fix": string,
-  "learning_tip": string
-}`;
+  "findings": [
+    {
+      "issue_type": "SQL Injection",
+      "severity": "Critical",
+      "line_number": 6,
+      "explanation": "Plain English explanation of why this is dangerous and how an attacker could exploit it",
+      "vulnerable_code": "the exact bad code",
+      "suggested_fix": "the corrected code",
+      "learning_tip": "How to avoid this mistake in future"
+    }
+  ],
+  "summary": "2 sentence overall assessment",
+  "score": 45,
+  "is_repeat_mistake": false,
+  "repeat_note": "You made a similar SQL injection mistake last session!"
+}
+
+Score is 0-100 (100 = perfect secure code). Set is_repeat_mistake to true if this matches their memory history.`;
 
     const chatCompletion = await groq.chat.completions.create({
-      messages: [{ role: 'user', content: prompt }],
-      model: 'qwen-2.5-coder-32b',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: code }
+      ],
+      model: 'llama-3.3-70b-versatile',
       temperature: 0.1,
     });
 
-    const responseText = chatCompletion.choices[0]?.message?.content || '[]';
+    const responseText = chatCompletion.choices[0]?.message?.content || '{}';
 
-    // 3. Parse JSON safely (strip markdown fences if present)
-    let findings: any[] = [];
+    // Parse JSON safely
+    let analysisResult: any = {};
     try {
       const cleaned = responseText.replace(/```json\n?/gi, '').replace(/```\n?/g, '').trim();
-      findings = JSON.parse(cleaned);
-      if (!Array.isArray(findings)) findings = [];
+      analysisResult = JSON.parse(cleaned);
     } catch (e) {
       console.error('Failed to parse Groq JSON response:', responseText);
       return NextResponse.json({ error: 'Failed to parse AI response', raw: responseText }, { status: 500 });
     }
 
-    // 4. Store each finding into Hindsight using positional args
-    for (const f of findings) {
-      const memContent = `User made a ${f.severity} mistake in ${language}: ${f.issue_type}. ` +
-        `At line ${f.line_number}. Explanation: ${f.explanation}. Fix: ${f.suggested_fix}`;
-      try {
-        await hindsightClient.retain(userId, memContent);
-      } catch (e) {
-        console.error('Hindsight retain error (non-fatal):', e);
+    // Store findings in Hindsight
+    if (analysisResult.findings && Array.isArray(analysisResult.findings)) {
+      for (const finding of analysisResult.findings) {
+        try {
+          await hindsight.retain(
+            userId,
+            `User made a ${finding.severity} ${finding.issue_type} mistake in ${language} on line ${finding.line_number}. Code: ${finding.vulnerable_code}. Fix: ${finding.suggested_fix}.`
+          );
+        } catch (e) {
+          console.error('Hindsight retain error (non-fatal):', e);
+        }
       }
     }
 
-    return NextResponse.json({ findings });
+    return NextResponse.json(analysisResult);
 
   } catch (err: any) {
     console.error('Analyze route error:', err);
