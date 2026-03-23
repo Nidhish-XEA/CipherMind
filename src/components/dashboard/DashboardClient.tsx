@@ -129,17 +129,18 @@ export default function DashboardClient({ user }: { user: any }) {
     setFixedCards(new Set());
     setScanningLine(0);
     
-    // Simulate scanning animation
+    // Simulate scanning animation - faster for local testing
     const lines = code.split('\n').length;
+    const scanSpeed = Math.max(5, Math.floor(1000 / lines)); // Faster for longer code
     const scanInterval = setInterval(() => {
       setScanningLine(prev => {
         if (prev >= lines) {
           clearInterval(scanInterval);
           return lines;
         }
-        return prev + 1;
+        return prev + Math.max(1, Math.floor(lines / 20)); // Jump multiple lines
       });
-    }, 50);
+    }, scanSpeed);
     
     try {
       const res = await fetch(`/api/security-scan?t=${Date.now()}`, {
@@ -173,7 +174,7 @@ export default function DashboardClient({ user }: { user: any }) {
       setTimeout(() => {
         setAnalyzing(false);
         setScanningLine(0);
-      }, 500);
+      }, 100); // Much faster for local testing
     }
   };
 
