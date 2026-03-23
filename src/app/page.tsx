@@ -305,7 +305,7 @@ export default function Home() {
               <div className="bg-black/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
                 <pre className="text-green-400">
 {`function authenticateUser(username, password) {
-  const query = \`SELECT * FROM users WHERE username = '\${username}' AND password = '\${password}'\`;
+  const query = `SELECT * FROM users WHERE username = '${` + "username" + `}' AND password = '${` + "password" + `}'`;
   return db.query(query);
 }`}
                 </pre>
@@ -351,7 +351,7 @@ export default function Home() {
                     </div>
                     <p className="text-sm text-gray-300 mb-2">Direct string concatenation in SQL query allows malicious input injection</p>
                     <div className="bg-black/50 rounded p-2">
-                      <code className="text-xs text-red-400">Vulnerable: `SELECT * FROM users WHERE username = '${` + "username" + `}'`</code>
+                      <code className="text-xs text-red-400">Vulnerable: {`SELECT * FROM users WHERE username = '${` + "username" + `}' AND password = '${` + "password" + `}'`}</code>
                     </div>
                   </motion.div>
                   
@@ -417,7 +417,7 @@ export default function Home() {
                     <span key={j} className="text-yellow-400">★</span>
                   ))}
                 </div>
-                <p className="text-gray-300 mb-4 italic">"{testimonial.content}"</p>
+                <p className="text-gray-300 mb-4 italic">&quot;{testimonial.content}&quot;</p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
                     <span className="text-black font-bold text-sm">

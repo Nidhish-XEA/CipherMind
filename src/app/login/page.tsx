@@ -78,7 +78,7 @@ export default function Login() {
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-400">
-          Don't have an account? <Link href="/signup" className="text-primary hover:underline font-mono">Register Here</Link>
+          Don&apos;t have an account? <Link href="/signup" className="text-primary hover:underline font-mono">Register Here</Link>
         </div>
       </div>
     </div>
