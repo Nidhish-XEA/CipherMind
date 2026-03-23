@@ -2,8 +2,9 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, BrainCircuit, ShieldAlert, Zap, Repeat, Target, Lock, Code, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ArrowRight, BrainCircuit, ShieldAlert, Zap, Repeat, Target, Lock, Code, CheckCircle, AlertTriangle, Upload, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import MatrixRain from '@/components/landing/MatrixRain';
 import { useEffect, useState, useRef } from 'react';
 
@@ -48,62 +49,50 @@ const NeuralNetwork = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    interface Node {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      radius: number;
-    }
-
-    const nodes: Node[] = [];
+    const nodes: Array<{x: number, y: number, vx: number, vy: number}> = [];
     const nodeCount = 50;
-    const connectionDistance = 150;
 
-    // Initialize nodes
     for (let i = 0; i < nodeCount; i++) {
       nodes.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        radius: Math.random() * 2 + 1
+        vy: (Math.random() - 0.5) * 0.5
       });
     }
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(13, 13, 20, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Update and draw nodes
       nodes.forEach((node, i) => {
         node.x += node.vx;
         node.y += node.vy;
 
-        // Bounce off walls
         if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
         if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
 
-        // Draw connections
-        nodes.forEach((otherNode, j) => {
-          if (i === j) return;
-          const distance = Math.sqrt(
-            Math.pow(node.x - otherNode.x, 2) + Math.pow(node.y - otherNode.y, 2)
-          );
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = '#00d4ff';
+        ctx.fill();
 
-          if (distance < connectionDistance) {
-            ctx.beginPath();
-            ctx.moveTo(node.x, node.y);
-            ctx.lineTo(otherNode.x, otherNode.y);
-            ctx.strokeStyle = `rgba(0, 212, 255, ${0.1 * (1 - distance / connectionDistance)})`;
-            ctx.stroke();
+        nodes.forEach((otherNode, j) => {
+          if (i !== j) {
+            const distance = Math.sqrt(
+              Math.pow(node.x - otherNode.x, 2) + Math.pow(node.y - otherNode.y, 2)
+            );
+            
+            if (distance < 150) {
+              ctx.beginPath();
+              ctx.moveTo(node.x, node.y);
+              ctx.lineTo(otherNode.x, otherNode.y);
+              ctx.strokeStyle = `rgba(0, 212, 255, ${1 - distance / 150})`;
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+            }
           }
         });
-
-        // Draw node
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 212, 255, 0.6)';
-        ctx.fill();
       });
 
       requestAnimationFrame(animate);
@@ -124,18 +113,35 @@ const NeuralNetwork = () => {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 z-0"
-      style={{ opacity: 0.3 }}
+      style={{ background: 'linear-gradient(to bottom, #0d0d14, #1a1a2e)' }}
     />
   );
 };
 
-export default function Home() {
-  const [demoStep, setDemoStep] = useState(0);
+export default function HomePage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [demoStep, setDemoStep] = useState(0);
+  const [demoCode, setDemoCode] = useState(`function authenticateUser(username, password) {
+  const query = \`SELECT * FROM users WHERE username = '\${username}' AND password = '\${password}'\`;
+  return db.query(query);
+}`);
 
-  const runDemo = () => {
+  const runDemo = async () => {
     setIsAnalyzing(true);
-    setDemoStep(1);
+    setDemoCode(`function authenticateUser(username, password) {
+  const query = \`SELECT * FROM users WHERE username = '\${username}' AND password = '\${password}'\`;
+  return db.query(query);
+}`);
+    
+    setTimeout(() => {
+      setDemoCode(`function authenticateUser(username, password) {
+  // 🚨 SQL INJECTION DETECTED!
+  const query = "SELECT * FROM users WHERE username = ? AND password = ?";
+  return db.query(query, [username, password]);
+}`);
+      setDemoStep(1);
+    }, 1500);
+    
     setTimeout(() => {
       setDemoStep(2);
       setIsAnalyzing(false);
@@ -159,142 +165,74 @@ export default function Home() {
             <BrainCircuit className="w-16 h-16 text-primary" />
           </div>
           
-          <h1 className="flex items-center gap-3 text-5xl md:text-7xl font-bold font-mono tracking-tighter mb-6 heading-glow text-white">
-            Cipher<span className="text-secondary">Mind</span> <Lock className="hidden md:inline w-12 h-12 text-success" />
+          <h1 className="text-5xl md:text-7xl font-mono font-bold mb-6 heading-glow">
+            Cipher<span className="text-secondary">Mind</span>
           </h1>
           
-          <div className="h-12 md:h-16 text-xl md:text-3xl font-medium text-gray-300 mb-8 max-w-2xl">
-            <Typewriter strings={["Remembers your mistakes.", "Learns your patterns.", "Makes you unstoppable."]} />
+          <div className="text-xl md:text-2xl text-gray-300 mb-8 h-8">
+            <Typewriter strings={[
+              "The AI Coding Mentor with Perfect Recall",
+              "Never Make the Same Mistake Twice",
+              "Your Personal Security Expert"
+            ]} />
           </div>
-
-          <div className="flex flex-col sm:flex-row gap-6 mb-16 relative z-10 w-full sm:w-auto px-4">
-            <Link href="/signup" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/80 text-black font-bold h-14 px-8 text-lg rounded-full shadow-[0_0_20px_rgba(0,212,255,0.4)] transition-all hover:scale-105">
-                Start Coding Free <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-            <Link href="#how-it-works" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 text-lg rounded-full border-gray-600 text-white hover:bg-white/5 backdrop-blur-md">
-                See How It Works
-              </Button>
-            </Link>
-          </div>
-        </motion.div>
-
-        {/* Floating Cards (Background elements) */}
-        <motion.div 
-          className="hidden md:block absolute top-[20%] left-[10%] opacity-60 text-left glass-card p-4 rounded-xl border border-red-500/30 w-72 backdrop-blur-sm"
-          animate={{ y: [0, -20, 0] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        >
-           <p className="text-red-400 font-mono text-xs break-all">const url = `http://foo.com/` + inp;</p>
-           <p className="text-xs mt-2 text-gray-400">Vuln: SSRF/Injection vector detected.</p>
-        </motion.div>
-        <motion.div 
-          className="hidden md:block absolute top-[40%] right-[10%] opacity-60 text-left glass-card p-4 rounded-xl border border-success/30 w-72 backdrop-blur-sm"
-          animate={{ y: [0, 20, 0] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        >
-           <p className="text-success font-mono text-xs break-all">const url = new URL(inp, base);</p>
-           <p className="text-xs mt-2 text-gray-400">Fix applied: Strict URL validation.</p>
-        </motion.div>
-      </section>
-
-      {/* Stats Bar */}
-      <section className="border-y border-white/5 bg-background/50 backdrop-blur-md py-8">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-around items-center gap-8 font-mono text-center">
-          <div>
-            <div className="text-3xl font-bold text-primary mb-2 text-glow">10,000+</div>
-            <div className="text-gray-400 uppercase tracking-widest text-sm font-semibold">Mistakes Remembered</div>
-          </div>
-          <div className="hidden md:block w-px h-16 bg-white/10" />
-          <div>
-            <div className="text-3xl font-bold text-secondary mb-2 text-glow">500+</div>
-            <div className="text-gray-400 uppercase tracking-widest text-sm font-semibold">Developers Improved</div>
-          </div>
-          <div className="hidden md:block w-px h-16 bg-white/10" />
-          <div>
-            <div className="text-3xl font-bold text-success mb-2 text-glow">98%</div>
-            <div className="text-gray-400 uppercase tracking-widest text-sm font-semibold">Accuracy</div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-24 max-w-7xl mx-auto px-4 relative">
-        <div className="absolute top-[50%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[800px] bg-secondary/10 blur-[120px] rounded-full pointer-events-none" />
-        <div className="text-center mb-16 relative z-10">
-          <h2 className="text-3xl md:text-5xl font-mono font-bold mb-4 text-glow">The Brain Engine</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto text-lg">Powered by Hindsight memory and Groq AI, CipherMind builds a vector representation of your weaknesses to forge you into an elite developer.</p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8 relative z-10">
-          {[
-            { title: "Persistent Memory", desc: "Hindsight vector DB stores every mistake you make for continuous tracking.", icon: BrainCircuit, color: "text-primary" },
-            { title: "Smart Code Analysis", desc: "Groq identifies complex logic vulnerabilities and anti-patterns instantly.", icon: Zap, color: "text-secondary" },
-            { title: "Personalized Feedback", desc: "Actionable advice strictly tailored to your historical coding behavior.", icon: Target, color: "text-success" },
-            { title: "Progress Tracking", desc: "Watch your mistake rate drop over time through dynamic visualizations.", icon: ShieldAlert, color: "text-primary" },
-            { title: "Adaptive Learning", desc: "The suggestions get deeper and harder as your core skills improve.", icon: Repeat, color: "text-secondary" },
-            { title: "Secure Code Focus", desc: "Stop shipping OWASP Top 10 vulnerabilities into production environments.", icon: Lock, color: "text-success" },
-          ].map((feat, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ y: -5, scale: 1.02 }}
-              className="glass-card p-6 rounded-2xl flex flex-col group cursor-pointer relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full -z-10 group-hover:scale-110 transition-transform" />
-              <feat.icon className={`w-12 h-12 mb-4 ${feat.color} group-hover:scale-110 transition-transform duration-300`} />
-              <h3 className="text-xl font-bold mb-2 font-mono text-white group-hover:text-primary transition-colors">{feat.title}</h3>
-              <p className="text-gray-400">{feat.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section id="how-it-works" className="py-24 relative bg-[#0d0d14]">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-5xl font-mono font-bold mb-16 heading-glow">The Adaptive Loop</h2>
           
-          <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-4 lg:gap-8">
-            {/* Step 1 */}
-            <div className="flex-1 glass-card p-8 rounded-2xl relative z-10 w-full md:max-w-xs text-left">
-              <div className="text-6xl font-black text-white/[0.03] absolute top-2 right-4">01</div>
-              <h4 className="text-xl font-bold text-primary mb-4 font-mono">Submit Code</h4>
-              <p className="text-gray-400 text-sm">Write or paste your code snippet. Select your language. Hit Analyze.</p>
+          <p className="text-gray-400 max-w-2xl mx-auto text-lg mb-8 leading-relaxed">
+            CipherMind analyzes your code, <span className="text-primary font-bold">remembers your mistakes</span>, and builds a personalized picture of your weaknesses — so you never make the same error twice.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <Link href="/dashboard">
+              <Button className="bg-primary hover:bg-primary/80 text-black font-bold px-8 py-3 transition-all transform hover:scale-105">
+                Start Analyzing
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+            <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 px-8 py-3">
+              <ShieldAlert className="mr-2 w-5 h-5" />
+              View Demo
+            </Button>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-400">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-yellow-400" />
+              <span>Real-time Analysis</span>
             </div>
-            <ArrowRight className="hidden md:block w-8 h-8 text-gray-700" />
-            
-            {/* Step 2 */}
-            <div className="flex-1 glass-card p-8 rounded-2xl relative z-10 w-full md:max-w-xs text-left border-primary/20 bg-primary/[0.02]">
-              <div className="text-6xl font-black text-white/[0.03] absolute top-2 right-4">02</div>
-              <h4 className="text-xl font-bold text-secondary mb-4 font-mono">AI Analyzes</h4>
-              <p className="text-gray-400 text-sm">Groq scans for bugs while querying your Hindsight memory for repeating flaws.</p>
+            <div className="flex items-center gap-2">
+              <Repeat className="w-4 h-4 text-blue-400" />
+              <span>Pattern Recognition</span>
             </div>
-            <ArrowRight className="hidden md:block w-8 h-8 text-gray-700" />
-            
-            {/* Step 3 */}
-            <div className="flex-1 glass-card p-8 rounded-2xl relative z-10 w-full md:max-w-xs text-left">
-              <div className="text-6xl font-black text-white/[0.03] absolute top-2 right-4">03</div>
-              <h4 className="text-xl font-bold text-success mb-4 font-mono">Memory Learns</h4>
-              <p className="text-gray-400 text-sm">New mistakes are instantly stored. Your mentor adapts definitively to your weaknesses.</p>
+            <div className="flex items-center gap-2">
+              <Target className="w-4 h-4 text-green-400" />
+              <span>Personalized Feedback</span>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Live Demo Section */}
-      <section className="py-24 relative">
+      <section className="py-24 relative bg-[#0d0d14]">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-mono font-bold mb-4 heading-glow">Live Demo</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg">See CipherMind in action - watch it detect vulnerabilities in real-time</p>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-mono font-bold mb-4 heading-glow">See It in Action</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg">Watch CipherMind detect and fix vulnerabilities in real-time</p>
+          </motion.div>
 
-          <div className="glass-card rounded-2xl p-8 border border-white/10">
-            <div className="mb-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex gap-2">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-4xl mx-auto"
+          >
+            <Card className="glass-card p-6 rounded-2xl border border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-red-500"></div>
                   <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                   <div className="w-3 h-3 rounded-full bg-green-500"></div>
@@ -303,41 +241,39 @@ export default function Home() {
               </div>
               
               <div className="bg-black/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-                <pre className="text-green-400">
-{`function authenticateUser(username, password) {
-  const query = \`SELECT * FROM users WHERE username = '\${username}' AND password = '\${password}'\`;
-  return db.query(query);
-}`}
+                <pre className={`text-green-400 ${isAnalyzing ? 'animate-pulse' : ''}`}>
+                  {demoCode}
                 </pre>
               </div>
-            </div>
+            </Card>
 
             <div className="flex justify-center mb-6">
               <Button 
                 onClick={runDemo}
                 disabled={isAnalyzing}
-                className="bg-primary hover:bg-primary/80 text-black font-bold"
+                className="bg-primary hover:bg-primary/80 text-black font-bold px-8 py-3 transition-all transform hover:scale-105"
               >
                 {isAnalyzing ? (
-                  <><motion.div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" /> Analyzing...</>
+                  <>
+                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin mr-2" />
+                    Analyzing...
+                  </>
                 ) : (
-                  <>Run Analysis <Zap className="ml-2 w-4 h-4" /></>
+                  <>
+                    <Play className="mr-2 w-5 h-5" />
+                    Run Security Analysis
+                  </>
                 )}
               </Button>
             </div>
 
-            {/* Demo Results */}
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: demoStep > 0 ? 1 : 0, height: demoStep > 0 ? 'auto' : 0 }}
-              className="overflow-hidden"
-            >
-              <div className="border-t border-white/10 pt-6">
-                <h3 className="text-lg font-bold font-mono text-white mb-4 flex items-center gap-2">
-                  <BrainCircuit className="w-5 h-5 text-primary" /> Analysis Results
-                </h3>
-                
-                <div className="space-y-4">
+            {demoStep > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                {demoStep >= 1 && (
                   <motion.div 
                     initial={{ x: -50, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
@@ -354,7 +290,9 @@ export default function Home() {
                       <code className="text-xs text-red-400">Vulnerable: {`SELECT * FROM users WHERE username = '${` + "username" + `}' AND password = '${` + "password" + `}'`}</code>
                     </div>
                   </motion.div>
-                  
+                )}
+                
+                {demoStep >= 2 && (
                   <motion.div 
                     initial={{ x: -50, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
@@ -363,78 +301,174 @@ export default function Home() {
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <CheckCircle className="w-5 h-5 text-green-400" />
-                      <span className="font-bold text-green-400 font-mono">Suggested Fix</span>
+                      <span className="font-bold text-green-400 font-mono">Fixed</span>
+                      <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">Secure</span>
                     </div>
+                    <p className="text-sm text-gray-300 mb-2">Used parameterized queries to prevent SQL injection attacks</p>
                     <div className="bg-black/50 rounded p-2">
-                      <code className="text-xs text-green-400">Use parameterized queries or prepared statements</code>
+                      <code className="text-xs text-green-400">Secure: db.query("SELECT * FROM users WHERE username = ? AND password = ?", [username, password])</code>
                     </div>
                   </motion.div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
+                )}
+              </motion.div>
+            )}
+          </motion.div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-24 relative bg-[#0d0d14]">
+      {/* Features Section */}
+      <section className="py-24 relative">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-mono font-bold mb-4 heading-glow">What Developers Say</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg">Join thousands of developers who've leveled up their security skills</p>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-mono font-bold mb-4 heading-glow">Features</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg">Everything you need to write secure, bug-free code</p>
+          </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                name: "Sarah Chen",
-                role: "Full Stack Developer",
-                content: "CipherMind caught 3 SQL injection vulnerabilities I missed in code review. The memory feature is incredible - it remembers my patterns!",
-                rating: 5
+                icon: BrainCircuit,
+                title: "AI-Powered Analysis",
+                description: "Advanced machine learning models detect vulnerabilities, anti-patterns, and security issues in real-time.",
+                color: "text-blue-400"
               },
               {
-                name: "Marcus Rodriguez",
-                role: "Security Engineer",
-                content: "As someone who mentors junior developers, this tool is a game-changer. The personalized feedback based on past mistakes is brilliant.",
-                rating: 5
+                icon: Repeat,
+                title: "Pattern Memory",
+                description: "Learns from your mistakes and provides personalized feedback based on your coding history.",
+                color: "text-purple-400"
               },
               {
-                name: "Emily Watson",
-                role: "Frontend Developer",
-                content: "I've reduced my security bugs by 80% since using CipherMind. The real-time analysis during development is invaluable.",
-                rating: 5
+                icon: ShieldAlert,
+                title: "Security Focus",
+                description: "Specialized in detecting security vulnerabilities, injection attacks, and authentication flaws.",
+                color: "text-red-400"
+              },
+              {
+                icon: Target,
+                title: "Actionable Insights",
+                description: "Get specific, actionable recommendations with code examples and best practices.",
+                color: "text-green-400"
+              },
+              {
+                icon: Lock,
+                title: "Private & Secure",
+                description: "Your code and analysis data are encrypted and never shared with third parties.",
+                color: "text-yellow-400"
+              },
+              {
+                icon: Code,
+                title: "Multi-Language",
+                description: "Supports JavaScript, Python, Java, C++, Go, and many more programming languages.",
+                color: "text-cyan-400"
               }
-            ].map((testimonial, i) => (
+            ].map((feature, index) => (
               <motion.div
-                key={i}
+                key={index}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="glass-card p-6 rounded-2xl border border-white/10 hover:border-primary/30 transition-all"
+                transition={{ duration: 0.8, delay: index * 0.1 }}
+                className="glass-card p-6 rounded-2xl border border-white/10 hover:border-primary/30 transition-all group"
               >
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, j) => (
-                    <span key={j} className="text-yellow-400">★</span>
-                  ))}
-                </div>
-                <p className="text-gray-300 mb-4 italic">&quot;{testimonial.content}&quot;</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                    <span className="text-black font-bold text-sm">
-                      {testimonial.name.split(' ').map(n => n[0]).join('')}
-                    </span>
-                  </div>
-                  <div>
-                    <div className="font-mono font-semibold text-white">{testimonial.name}</div>
-                    <div className="text-xs text-gray-400">{testimonial.role}</div>
-                  </div>
-                </div>
+                <feature.icon className={`w-12 h-12 ${feature.color} mb-4 group-hover:scale-110 transition-transform`} />
+                <h3 className="text-xl font-bold text-white font-mono mb-3">{feature.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Stats Bar */}
+      <section className="py-16 relative bg-gradient-to-r from-primary/10 to-secondary/10">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { number: "50+", label: "Vulnerability Types" },
+              { number: "15+", label: "Programming Languages" },
+              { number: "100K+", label: "Code Patterns" },
+              { number: "24/7", label: "AI Analysis" }
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: index * 0.1 }}
+                className="space-y-2"
+              >
+                <div className="text-3xl md:text-4xl font-bold text-primary font-mono">{stat.number}</div>
+                <div className="text-gray-400 text-sm">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-24 relative">
+        <div className="max-w-7xl mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-mono font-bold mb-4 heading-glow">How It Works</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg">Simple three-step process to secure your code</p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                step: "01",
+                title: "Submit Code",
+                description: "Paste your code or upload a file in any supported programming language.",
+                icon: Upload
+              },
+              {
+                step: "02", 
+                title: "AI Analysis",
+                description: "Our AI analyzes your code, recalls your past mistakes, and identifies vulnerabilities.",
+                icon: BrainCircuit
+              },
+              {
+                step: "03",
+                title: "Get Feedback",
+                description: "Receive detailed, actionable feedback with specific fixes and security recommendations.",
+                icon: CheckCircle
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: index * 0.1 }}
+                className="relative"
+              >
+                <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-primary/30 transition-all h-full">
+                  <div className="text-4xl font-bold text-primary font-mono mb-4">{item.step}</div>
+                  <item.icon className="w-12 h-12 text-primary mb-4" />
+                  <h3 className="text-xl font-bold text-white font-mono mb-3">{item.title}</h3>
+                  <p className="text-gray-400 leading-relaxed">{item.description}</p>
+                </div>
+                
+                {index < 2 && (
+                  <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2">
+                    <ArrowRight className="w-8 h-8 text-primary" />
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
       <footer className="border-t border-white/10 bg-background py-16 text-center">
         <div className="flex items-center justify-center gap-2 mb-4 group cursor-pointer">
           <BrainCircuit className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
