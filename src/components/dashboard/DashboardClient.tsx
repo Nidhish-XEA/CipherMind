@@ -129,18 +129,9 @@ export default function DashboardClient({ user }: { user: any }) {
     setFixedCards(new Set());
     setScanningLine(0);
     
-    // Simulate scanning animation - faster for local testing
+    // Skip scanning animation for instant local testing
     const lines = code.split('\n').length;
-    const scanSpeed = Math.max(5, Math.floor(1000 / lines)); // Faster for longer code
-    const scanInterval = setInterval(() => {
-      setScanningLine(prev => {
-        if (prev >= lines) {
-          clearInterval(scanInterval);
-          return lines;
-        }
-        return prev + Math.max(1, Math.floor(lines / 20)); // Jump multiple lines
-      });
-    }, scanSpeed);
+    setScanningLine(lines); // Set to complete immediately
     
     try {
       const res = await fetch(`/api/security-scan?t=${Date.now()}`, {
@@ -150,7 +141,6 @@ export default function DashboardClient({ user }: { user: any }) {
       });
       const data = await res.json();
       
-      clearInterval(scanInterval);
       setScanningLine(lines);
       
       if (data.findings) {
@@ -163,7 +153,6 @@ export default function DashboardClient({ user }: { user: any }) {
       }
     } catch (e) {
       console.error(e);
-      clearInterval(scanInterval);
       setFindings([]);
       toast({
         title: "Analysis failed",
@@ -171,10 +160,8 @@ export default function DashboardClient({ user }: { user: any }) {
         variant: "destructive"
       });
     } finally {
-      setTimeout(() => {
-        setAnalyzing(false);
-        setScanningLine(0);
-      }, 100); // Much faster for local testing
+      setAnalyzing(false);
+      setScanningLine(0);
     }
   };
 
