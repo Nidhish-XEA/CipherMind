@@ -13,7 +13,7 @@ const hindsight = new HindsightClient({
 
 export async function GET(
   req: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -21,12 +21,14 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { userId } = await params;
+    
     // Ensure the requested userId matches the session user
-    if (session.user.id !== params.userId) {
+    if (session.user.id !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const memories = await hindsight.recall(params.userId, 'all past coding mistakes');
+    const memories = await hindsight.recall(userId, 'all past coding mistakes');
     return NextResponse.json(memories?.results || []);
 
   } catch (err: any) {
