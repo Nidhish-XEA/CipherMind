@@ -139,7 +139,7 @@ export default function DashboardClient({ user }: { user: any }) {
     }, 50);
     
     try {
-      const res = await fetch('/api/analyze-test', {
+      const res = await fetch('/api/security-scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, language })
