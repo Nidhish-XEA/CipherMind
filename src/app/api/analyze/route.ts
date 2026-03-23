@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import Groq from 'groq-sdk';
 import { HindsightClient } from '@vectorize-io/hindsight-client';
+import Groq from 'groq-sdk';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const hindsight = new HindsightClient({

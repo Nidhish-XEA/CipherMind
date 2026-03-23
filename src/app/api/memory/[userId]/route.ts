@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { HindsightClient } from '@vectorize-io/hindsight-client';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 const hindsight = new HindsightClient({
   baseUrl: process.env.HINDSIGHT_INSTANCE_URL!,
   apiKey: process.env.HINDSIGHT_API_KEY!
