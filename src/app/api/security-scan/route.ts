@@ -20,7 +20,8 @@ export async function POST(req: Request) {
         line: 11,
         description: 'SQL query uses string concatenation with user input, allowing SQL injection attacks',
         code: "const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;",
-        fix: 'Use parameterized queries: db.query("SELECT * FROM users WHERE username = ?", [username])'
+        fix: 'Use parameterized queries: db.query("SELECT * FROM users WHERE username = ?", [username])',
+        learning_tip: 'SQL injection is one of the most critical web vulnerabilities. Always use parameterized queries or prepared statements to prevent attackers from manipulating your SQL queries.'
       },
       {
         type: 'Hardcoded Credentials',
@@ -28,7 +29,8 @@ export async function POST(req: Request) {
         line: 6,
         description: 'Hardcoded admin key "ADMIN_SECRET_123" found in code, allowing privilege escalation',
         code: "this.adminKey = \"ADMIN_SECRET_123\";",
-        fix: 'Use environment variables: process.env.ADMIN_SECRET'
+        fix: 'Use environment variables: process.env.ADMIN_SECRET',
+        learning_tip: 'Never hardcode secrets, API keys, or passwords in your source code. Use environment variables or secure secret management systems to keep sensitive data safe.'
       },
       {
         type: 'Command Injection',
@@ -36,7 +38,8 @@ export async function POST(req: Request) {
         line: 67,
         description: 'Direct execution of user input allows command injection attacks',
         code: "exec(command, (error, stdout, stderr) => {",
-        fix: 'Avoid executing user input, use safe alternatives'
+        fix: 'Avoid executing user input, use safe alternatives',
+        learning_tip: 'Command injection allows attackers to run system commands. Never execute user input directly. Use allowlists of safe commands or avoid shell execution entirely.'
       },
       {
         type: 'Cross-Site Scripting (XSS)',
@@ -44,7 +47,8 @@ export async function POST(req: Request) {
         line: 44,
         description: 'Direct HTML injection allows XSS attacks by injecting malicious scripts',
         code: "<h2>Welcome ${user.username}</h2>",
-        fix: 'Use textContent or sanitize HTML with DOMPurify'
+        fix: 'Use textContent or sanitize HTML with DOMPurify',
+        learning_tip: 'XSS attacks inject malicious scripts into web pages. Always sanitize user input before rendering it as HTML and use safe methods like textContent when possible.'
       },
       {
         type: 'Path Traversal',
@@ -52,7 +56,8 @@ export async function POST(req: Request) {
         line: 34,
         description: 'User input in file path allows directory traversal attacks',
         code: "getUserFile(filename) {",
-        fix: 'Validate and sanitize file paths, use whitelist of allowed directories'
+        fix: 'Validate and sanitize file paths, use whitelist of allowed directories',
+        learning_tip: 'Path traversal attacks allow access to files outside intended directories. Always validate file paths and use a whitelist of allowed directories and file types.'
       },
       {
         type: 'Weak Cryptography',
@@ -60,7 +65,8 @@ export async function POST(req: Request) {
         line: 55,
         description: 'Using deprecated createCipher algorithm vulnerable to attacks',
         code: "const cipher = crypto.createCipher('aes-128-cbc', key);",
-        fix: 'Use strong algorithms: createCipheriv, bcrypt, Argon2'
+        fix: 'Use strong algorithms: createCipheriv, bcrypt, Argon2',
+        learning_tip: 'Weak cryptography can be broken by attackers. Always use modern, well-vetted cryptographic algorithms and proper key management practices.'
       },
       {
         type: 'Insecure Random Generation',
@@ -68,7 +74,8 @@ export async function POST(req: Request) {
         line: 48,
         description: 'Using predictable Math.random() for session tokens',
         code: "return Math.random().toString(36).substring(2, 15);",
-        fix: 'Use crypto.randomBytes() or window.crypto.getRandomValues()'
+        fix: 'Use crypto.randomBytes() or window.crypto.getRandomValues()',
+        learning_tip: 'Predictable random numbers can lead to session hijacking and token prediction. Always use cryptographically secure random number generators for security-critical operations.'
       },
       {
         type: 'CSRF Vulnerability',
@@ -76,7 +83,8 @@ export async function POST(req: Request) {
         line: 95,
         description: 'State-changing fund transfer operation without CSRF protection',
         code: "transferFunds(fromAccount, toAccount, amount, token) {",
-        fix: 'Implement CSRF tokens and validate on state changes'
+        fix: 'Implement CSRF tokens and validate on state changes',
+        learning_tip: 'CSRF attacks force users to perform unwanted actions on authenticated websites. Always use CSRF tokens for state-changing operations to protect your users.'
       }
     ];
 

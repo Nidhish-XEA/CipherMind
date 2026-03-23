@@ -468,8 +468,8 @@ export default function DashboardClient({ user }: { user: any }) {
                         <SeverityIcon level={f.severity} />
                         <span className={`font-bold text-white font-mono ${
                           fixedCards.has(i) ? 'line-through' : ''
-                        }`}>{f.issue_type}</span>
-                        <span className="text-xs text-gray-400 font-mono bg-white/5 px-2 py-1 rounded">Line {f.line_number}</span>
+                        }`}>{f.type || f.issue_type}</span>
+                        <span className="text-xs text-gray-400 font-mono bg-white/5 px-2 py-1 rounded">Line {f.line || f.line_number}</span>
                       </div>
                       <span className={`text-xs font-bold font-mono px-2 py-1 rounded 
                         ${f.severity === 'Critical' ? 'bg-red-500/20 text-red-400' : 
@@ -478,7 +478,7 @@ export default function DashboardClient({ user }: { user: any }) {
                         {f.severity}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-300 mb-3">{f.explanation}</p>
+                    <p className="text-sm text-gray-300 mb-3">{f.description || f.explanation}</p>
                     
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2 mb-3">
@@ -493,7 +493,7 @@ export default function DashboardClient({ user }: { user: any }) {
                       {expandedCards.has(i) && (
                         <>
                           <button
-                            onClick={() => copyToClipboard(f.suggested_fix)}
+                            onClick={() => copyToClipboard(f.fix || f.suggested_fix)}
                             className="text-xs text-white hover:text-primary font-mono flex items-center gap-1"
                           >
                             <Copy className="w-3 h-3" /> Copy Fix
@@ -516,12 +516,12 @@ export default function DashboardClient({ user }: { user: any }) {
                       <div className="space-y-3 animate-in slide-in-from-top duration-200">
                         <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
                           <span className="text-xs text-red-400 font-mono mb-2 block">❌ Vulnerable Code:</span>
-                          <pre className="text-xs text-gray-300 font-mono overflow-x-auto whitespace-pre-wrap">{f.vulnerable_code}</pre>
+                          <pre className="text-xs text-gray-300 font-mono overflow-x-auto whitespace-pre-wrap">{f.code || f.vulnerable_code}</pre>
                         </div>
                         
                         <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
                           <span className="text-xs text-green-400 font-mono mb-2 block">✅ Suggested Fix:</span>
-                          <pre className="text-xs text-gray-300 font-mono overflow-x-auto whitespace-pre-wrap">{f.suggested_fix}</pre>
+                          <pre className="text-xs text-gray-300 font-mono overflow-x-auto whitespace-pre-wrap">{f.fix || f.suggested_fix}</pre>
                         </div>
                         
                         <div className="bg-secondary/10 border border-secondary/20 rounded-lg p-3">
