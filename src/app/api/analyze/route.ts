@@ -246,9 +246,12 @@ export async function POST(req: Request) {
       console.error('Hindsight recall error (non-fatal):', e);
     }
 
-    // Use mock analysis for demo, or real Groq if API key is available
-    let analysisResult;
+    // Always use mock analysis for demo
+    let analysisResult = getMockAnalysis(code, language);
+    console.log('Using mock analysis for demo - found', analysisResult.summary.total, 'vulnerabilities');
     
+    // Uncomment below to use real Groq analysis when API keys are added
+    /*
     if (process.env.GROQ_API_KEY && process.env.GROQ_API_KEY !== 'mock-key') {
       // Real Groq analysis
       const systemPrompt = `You are CipherMind, a strict and expert security-focused code reviewer. You MUST analyze the submitted code thoroughly and find ALL issues. Be aggressive — never say code is perfect unless it truly is. 
@@ -301,11 +304,8 @@ User's past mistakes context: ${memoryContext}`;
       });
 
       analysisResult = JSON.parse(completion.choices[0].message.content || '{}');
-    } else {
-      // Mock analysis for demo
-      analysisResult = getMockAnalysis(code, language);
-      console.log('Using mock analysis for demo - add GROQ_API_KEY for real analysis');
     }
+    */
 
     // Store findings in Hindsight
     try {
