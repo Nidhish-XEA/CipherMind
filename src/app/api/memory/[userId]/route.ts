@@ -7,8 +7,8 @@ import { HindsightClient } from '@vectorize-io/hindsight-client';
 export const dynamic = 'force-dynamic';
 
 const hindsight = new HindsightClient({
-  baseUrl: process.env.HINDSIGHT_INSTANCE_URL!,
-  apiKey: process.env.HINDSIGHT_API_KEY!
+  baseUrl: process.env.HINDSIGHT_INSTANCE_URL || 'https://mock.vercel.com',
+  apiKey: process.env.HINDSIGHT_API_KEY || 'mock-key'
 });
 
 export async function GET(
