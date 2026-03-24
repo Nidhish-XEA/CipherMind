@@ -120,7 +120,7 @@ export default function DashboardClient({ user }: { user: any }) {
     });
   };
 
-  // Force cache busting - v2.1
+  // FORCE DEMO DATA - v3.0 EMERGENCY FIX
   const handleAnalyze = async () => {
     setAnalyzing(true);
     setFindings(null);
@@ -129,13 +129,14 @@ export default function DashboardClient({ user }: { user: any }) {
     setFixedCards(new Set());
     setScanningLine(0);
     
-    // Skip scanning animation for instant local testing
+    // Skip scanning animation for instant results
     const lines = code.split('\n').length;
-    setScanningLine(lines); // Set to complete immediately
+    setScanningLine(lines);
     
     try {
-      // Force demo data for guaranteed functionality - v2.2
-      console.log('Using guaranteed demo data for hackathon demo');
+      // EMERGENCY: Always return demo data regardless of input
+      console.log('EMERGENCY MODE: Always returning demo data');
+      
       const demoData = {
           success: true,
           findings: [
@@ -233,6 +234,7 @@ export default function DashboardClient({ user }: { user: any }) {
           timestamp: new Date().toISOString()
         };
         
+        console.log('EMERGENCY: Setting demo findings:', demoData.findings.length);
         setScanningLine(lines);
         setFindings(demoData.findings);
         setAnalysisResult(demoData);
