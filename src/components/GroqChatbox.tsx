@@ -43,10 +43,10 @@ export default function GroqChatbox() {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto p-4 bg-black/40 border-white/10">
+    <Card className="w-full max-w-2xl mx-auto p-4 bg-black/40 border-white/10 border-2 border-primary/30">
       <div className="flex items-center gap-2 mb-4">
-        <Bot className="w-5 h-5 text-primary" />
-        <h3 className="text-lg font-bold text-white">Groq API Test</h3>
+        <Bot className="w-5 h-5 text-primary animate-pulse" />
+        <h3 className="text-lg font-bold text-white">🔥 Groq API Test - Check if Working!</h3>
       </div>
       
       <div className="h-96 overflow-y-auto mb-4 space-y-3 p-3 bg-black/20 rounded-lg">
@@ -81,7 +81,7 @@ export default function GroqChatbox() {
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message here..."
+          placeholder="Paste code here to test Groq API..."
           className="flex-1 bg-white/5 border-white/10 text-white placeholder:text-gray-400"
           onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
         />
