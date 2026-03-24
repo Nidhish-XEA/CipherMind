@@ -2,12 +2,21 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-// Version 2.0 - Updated for Vercel deployment
+// Test endpoint
+export async function GET() {
+  return NextResponse.json({ 
+    message: 'CipherMind Security Scan API v2.1 is working!',
+    timestamp: new Date().toISOString(),
+    status: 'ready'
+  });
+}
+
+// Version 2.1 - Fixed Vercel deployment
 export async function POST(req: Request) {
   try {
     const { code, language } = await req.json();
     
-    console.log('=== SECURITY SCAN V2.0 START ===');
+    console.log('=== SECURITY SCAN V2.1 START ===');
     console.log('Code length:', code.length);
     console.log('Language:', language);
     console.log('Timestamp:', new Date().toISOString());
