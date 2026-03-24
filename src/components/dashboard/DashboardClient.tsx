@@ -6,6 +6,7 @@ import { BrainCircuit, Loader2, Play, AlertOctagon, AlertTriangle, ShieldAlert, 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import GroqChatbox from '@/components/GroqChatbox';
 
 const LANGUAGES = [
   { id: 'javascript', name: 'JavaScript' },
@@ -601,9 +602,14 @@ export default function DashboardClient({ user }: { user: any }) {
       </div>
 
       {/* RIGHT: Memory Sidebar */}
-      <div className="w-80 glass-card rounded-xl p-4 flex flex-col border border-white/10">
-        <h3 className="font-mono text-secondary font-bold mb-4 flex items-center justify-between">
-          <span className="flex items-center gap-2"><History className="w-5 h-5" /> Memory DB</span>
+      <div className="w-80 glass-card rounded-xl p-4 flex flex-col border border-white/10 space-y-4">
+        {/* Groq Chatbox */}
+        <GroqChatbox />
+        
+        {/* Memory DB */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <h3 className="font-mono text-secondary font-bold mb-4 flex items-center justify-between">
+            <span className="flex items-center gap-2"><History className="w-5 h-5" /> Memory DB</span>
           <span className="text-xs bg-white/10 px-2 py-1 rounded text-white">{memories.length} items</span>
         </h3>
         
