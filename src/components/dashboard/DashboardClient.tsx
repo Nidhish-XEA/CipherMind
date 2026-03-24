@@ -209,6 +209,18 @@ export default function DashboardClient({ user }: { user: any }) {
       }
     ];
     
+    // Calculate dynamic score based on vulnerabilities
+    const criticalCount = vulns.filter(v => v.severity === 'critical').length;
+    const highCount = vulns.filter(v => v.severity === 'high').length;
+    const mediumCount = vulns.filter(v => v.severity === 'medium').length;
+    
+    // Dynamic scoring: Start from 100, subtract based on severity
+    let score = 100;
+    score -= (criticalCount * 20);  // -20 per critical
+    score -= (highCount * 10);     // -10 per high  
+    score -= (mediumCount * 5);     // -5 per medium
+    score = Math.max(0, score);     // Minimum 0
+    
     setFindings(vulns);
     setAnalysisResult({
       success: true,
@@ -216,11 +228,11 @@ export default function DashboardClient({ user }: { user: any }) {
       analysis: {
         summary: {
           total: vulns.length,
-          critical: vulns.filter(v => v.severity === 'critical').length,
-          high: vulns.filter(v => v.severity === 'high').length,
-          medium: vulns.filter(v => v.severity === 'medium').length,
+          critical: criticalCount,
+          high: highCount,
+          medium: mediumCount,
           low: 0,
-          score: 25
+          score: score
         },
         vulnerabilities: vulns,
         recommendations: [
@@ -230,7 +242,7 @@ export default function DashboardClient({ user }: { user: any }) {
           'Validate and sanitize all user inputs'
         ]
       },
-      score: 25,
+      score: score,
       timestamp: new Date().toISOString()
     });
     
