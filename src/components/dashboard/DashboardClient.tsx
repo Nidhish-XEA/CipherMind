@@ -216,7 +216,9 @@ export default function DashboardClient({ user }: { user: any }) {
       console.log('FINAL: Setting', forcedFindings.length, 'vulnerabilities');
       
       setFindings(forcedFindings);
-      setAnalysisResult({
+      console.log('FINAL: setFindings called with:', forcedFindings.length);
+      
+      const resultData = {
         success: true,
         findings: forcedFindings,
         analysis: {
@@ -238,9 +240,13 @@ export default function DashboardClient({ user }: { user: any }) {
         },
         score: 25,
         timestamp: new Date().toISOString()
-      });
+      };
+      
+      setAnalysisResult(resultData);
+      console.log('FINAL: setAnalysisResult called');
       
       fetchMemories();
+      console.log('FINAL: fetchMemories called');
       return;
     } catch (e) {
       console.error(e);
@@ -517,6 +523,7 @@ export default function DashboardClient({ user }: { user: any }) {
           {!analyzing && findings && findings.length === 0 && (
             <div className="flex items-center justify-center p-8 text-success font-mono bg-success/5 border border-success/20 rounded-lg">
               <CheckCircle className="w-6 h-6 mr-2" /> No critical vulnerabilities detected. Perfect execution.
+              <div className="text-xs text-gray-400 mt-2">DEBUG: findings.length = {findings?.length}</div>
             </div>
           )}
 
