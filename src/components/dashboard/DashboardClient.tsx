@@ -609,43 +609,44 @@ export default function DashboardClient({ user }: { user: any }) {
         <div className="flex-1 flex flex-col min-h-0">
           <h3 className="font-mono text-secondary font-bold mb-4 flex items-center justify-between">
             <span className="flex items-center gap-2"><History className="w-5 h-5" /> Memory DB</span>
-          <span className="text-xs bg-white/10 px-2 py-1 rounded text-white">{memories.length} items</span>
-        </h3>
-        
-        <div className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin">
-          {memories.length === 0 ? (
-            <p className="text-xs text-gray-500 font-mono text-center mt-10">No past mistakes recorded. Analyze code to seed your mentor's memory.</p>
-          ) : (
-            memories.map((m, i) => {
-              const content = typeof m === 'string' ? m : (m.text || m.content || JSON.stringify(m));
-              const isCrit = content.toLowerCase().includes('critical') || content.toLowerCase().includes('high');
-              
-              // Extract issue type and language from content
-              const issueTypeMatch = content.match(/(\w+\s*(?:injection|xss|csrf|vulnerability|error|mistake))/i);
-              const languageMatch = content.match(/(javascript|python|java|cpp|c\+\+|go|php|ruby)/i);
-              
-              return (
-                <div key={i} className={`p-3 rounded-lg border text-xs font-mono transition-colors hover:bg-white/5 cursor-default
-                  ${isCrit ? 'bg-red-500/5 border-red-500/20' : 'bg-black/50 border-white/5'}`}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className={`font-bold ${
-                      isCrit ? 'text-red-400' : 'text-blue-400'
-                    }`}>
-                      {issueTypeMatch ? issueTypeMatch[1] : 'Security Issue'}
-                    </span>
-                    {languageMatch && (
-                      <span className="text-gray-500 bg-white/10 px-1 py-0.5 rounded">
-                        {languageMatch[1]}
+            <span className="text-xs bg-white/10 px-2 py-1 rounded text-white">{memories.length} items</span>
+          </h3>
+          
+          <div className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin">
+            {memories.length === 0 ? (
+              <p className="text-xs text-gray-500 font-mono text-center mt-10">No past mistakes recorded. Analyze code to seed your mentor's memory.</p>
+            ) : (
+              memories.map((m, i) => {
+                const content = typeof m === 'string' ? m : (m.text || m.content || JSON.stringify(m));
+                const isCrit = content.toLowerCase().includes('critical') || content.toLowerCase().includes('high');
+                const issueTypeMatch = content.match(/(\w+\s*(?:injection|xss|csrf|vulnerability|error|mistake))/i);
+                const languageMatch = content.match(/(javascript|python|java|cpp|c\+\+|go|php|ruby)/i);
+                
+                return (
+                  <div key={i} className={`p-3 rounded-lg border text-xs font-mono transition-colors hover:bg-white/5 cursor-default
+                    ${isCrit ? 'bg-red-500/5 border-red-500/20' : 'bg-black/50 border-white/5'}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-gray-400">
+                        {issueTypeMatch && (
+                          <span className="text-red-400 font-bold">
+                            {issueTypeMatch[1]}
+                          </span>
+                        )}
+                        {languageMatch && (
+                          <span className="text-gray-500 bg-white/10 px-1 py-0.5 rounded">
+                            {languageMatch[1]}
+                          </span>
+                        )}
                       </span>
-                    )}
+                    </div>
+                    <p className="text-gray-300 line-clamp-3 text-xs leading-relaxed">
+                      {content.length > 150 ? content.substring(0, 150) + '...' : content}
+                    </p>
                   </div>
-                  <p className="text-gray-300 line-clamp-3 text-xs leading-relaxed">
-                    {content.length > 150 ? content.substring(0, 150) + '...' : content}
-                  </p>
-                </div>
-              );
-            })
-          )}
+                );
+              })
+            )}
+          </div>
         </div>
       </div>
     </div>
