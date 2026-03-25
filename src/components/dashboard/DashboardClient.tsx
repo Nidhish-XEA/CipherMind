@@ -133,6 +133,18 @@ export default function DashboardClient({ user }: { user: any }) {
     const lines = code.split('\n').length;
     setScanningLine(lines);
     
+    // Check if we're on Vercel (no local server)
+    const isVercel = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+    
+    if (isVercel) {
+      // Vercel version: Show status and use demo data
+      toast({
+        title: "🌐 Vercel Demo Mode",
+        description: "Groq API not available on Vercel. Using demo vulnerability detection.",
+        duration: 3000
+      });
+    }
+    
     // WORKING: Always return vulnerabilities (Groq not working on Vercel)
     const vulns = [
       {
