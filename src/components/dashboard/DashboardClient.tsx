@@ -121,7 +121,7 @@ export default function DashboardClient({ user }: { user: any }) {
     });
   };
 
-  // WORKING VERSION - No Groq dependency
+  // TRY REAL GROQ FIRST, SHOW ERROR IF FAILS
   const handleAnalyze = async () => {
     setAnalyzing(true);
     setFindings(null);
@@ -133,20 +133,47 @@ export default function DashboardClient({ user }: { user: any }) {
     const lines = code.split('\n').length;
     setScanningLine(lines);
     
-    // Check if we're on Vercel (no local server)
-    const isVercel = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
-    
-    if (isVercel) {
-      // Vercel version: Show status and use demo data
-      toast({
-        title: "🌐 Vercel Demo Mode",
-        description: "Groq API not available on Vercel. Using demo vulnerability detection.",
-        duration: 3000
+    try {
+      // Try real Groq API first
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, language })
       });
-    }
-    
-    // WORKING: Always return vulnerabilities (Groq not working on Vercel)
-    const vulns = [
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.analysis) {
+        // Real Groq worked!
+        setFindings(data.analysis.vulnerabilities || []);
+        setAnalysisResult({
+          success: true,
+          findings: data.analysis.vulnerabilities || [],
+          analysis: data.analysis,
+          score: data.analysis.summary?.score || 0,
+          timestamp: new Date().toISOString()
+        });
+        return;
+      } else {
+        throw new Error(data.error || 'Invalid response from Groq API');
+      }
+    } catch (error) {
+      // Groq failed - show REAL error
+      console.error('Groq API Error:', error);
+      
+      toast({
+        title: "❌ Groq Connection Failed",
+        description: `Could not communicate with Groq API: ${error.message}`,
+        variant: "destructive",
+        duration: 5000
+      });
+      
+      // Fallback to demo data
+      const vulns = [
       {
         type: 'SQL Injection',
         severity: 'critical',
