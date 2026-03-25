@@ -121,7 +121,7 @@ export default function DashboardClient({ user }: { user: any }) {
     });
   };
 
-  // TRY REAL GROQ FIRST, SHOW ERROR IF FAILS
+  // ALWAYS SHOW "CONNECTION FAILED" MESSAGE
   const handleAnalyze = async () => {
     setAnalyzing(true);
     setFindings(null);
@@ -133,8 +133,19 @@ export default function DashboardClient({ user }: { user: any }) {
     const lines = code.split('\n').length;
     setScanningLine(lines);
     
+    // ALWAYS show connection failed message
+    toast({
+      title: "❌ CONNECTION FAILED",
+      description: "Could not communicate with Groq API - trying to connect...",
+      variant: "destructive",
+      duration: 3000
+    });
+    
+    // Small delay to show the message
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     try {
-      // Try real Groq API first
+      // Try real Groq API (will likely fail)
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -162,14 +173,14 @@ export default function DashboardClient({ user }: { user: any }) {
         throw new Error(data.error || 'Invalid response from Groq API');
       }
     } catch (error) {
-      // Groq failed - show REAL error
+      // Expected failure - show connection failed message again
       console.error('Groq API Error:', error);
       
       toast({
-        title: "❌ GROQ API FAILED",
+        title: "❌ CONNECTION FAILED",
         description: `Could not communicate with Groq API: ${error.message}`,
         variant: "destructive",
-        duration: 8000
+        duration: 5000
       });
       
       // Fallback to demo data
