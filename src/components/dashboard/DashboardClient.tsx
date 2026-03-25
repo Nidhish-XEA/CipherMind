@@ -166,10 +166,10 @@ export default function DashboardClient({ user }: { user: any }) {
       console.error('Groq API Error:', error);
       
       toast({
-        title: "❌ Groq Connection Failed",
+        title: "❌ GROQ API FAILED",
         description: `Could not communicate with Groq API: ${error.message}`,
         variant: "destructive",
-        duration: 5000
+        duration: 8000
       });
       
       // Fallback to demo data
@@ -542,8 +542,18 @@ export default function DashboardClient({ user }: { user: any }) {
           {analyzing && (
             <div className="flex flex-col items-center justify-center h-24 text-primary animate-pulse font-mono">
               <Loader2 className="w-6 h-6 animate-spin mb-2" /> 
-              Scanning for vulnerabilities via Hindsight memory...
+              Scanning for vulnerabilities via AI analysis...
               <p className="text-xs text-gray-400 mt-1">Press Ctrl+Enter to analyze</p>
+            </div>
+          )}
+
+          {!analyzing && !findings && (
+            <div className="flex items-center justify-center p-8 text-destructive font-mono bg-destructive/5 border border-destructive/20 rounded-lg">
+              <AlertTriangle className="w-6 h-6 mr-2" /> 
+              <div>
+                <div className="font-bold">GROQ API FAILED</div>
+                <div className="text-sm opacity-80">Could not communicate with Groq API - using demo data</div>
+              </div>
             </div>
           )}
 
