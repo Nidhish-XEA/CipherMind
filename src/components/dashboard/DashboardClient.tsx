@@ -569,9 +569,12 @@ export default function DashboardClient({ user }: { user: any }) {
           )}
 
           {!analyzing && findings && findings.length === 0 && (
-            <div className="flex items-center justify-center p-8 text-success font-mono bg-success/5 border border-success/20 rounded-lg">
-              <CheckCircle className="w-6 h-6 mr-2" /> No critical vulnerabilities detected. Perfect execution.
-              <div className="text-xs text-gray-400 mt-2">DEBUG: findings.length = {findings?.length}</div>
+            <div className="flex items-center justify-center p-8 text-destructive font-mono bg-destructive/5 border border-destructive/20 rounded-lg">
+              <AlertTriangle className="w-6 h-6 mr-2" /> 
+              <div>
+                <div className="font-bold">CONNECTION FAILED</div>
+                <div className="text-sm opacity-80">Could not communicate with Groq API - using demo data</div>
+              </div>
             </div>
           )}
 
